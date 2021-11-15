@@ -1,0 +1,20 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.textToShow {
+    margin: 9px;
+}
+
+#btnSubmit {
+    color: white;
+    background-color: #128C7E;
+    border: none;
+    padding: 12px 28px;
+    text-align: center;
+    font-size: 15px;
+    position: absolute;
+    bottom: 10px;
+    left: 40%;
+}

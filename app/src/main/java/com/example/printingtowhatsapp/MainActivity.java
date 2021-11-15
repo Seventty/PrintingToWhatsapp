@@ -1,10 +1,15 @@
 package com.example.printingtowhatsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -29,18 +34,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = findViewById(R.id.shareBtn);
         WebView webView = findViewById(R.id.webView);
-        String url = "https://quotes.toscrape.com";
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
 
-        //WebView settings
-        webView.setWebViewClient(new WebViewClient());
-        //webView.loadUrl("https://www.google.com");
-        webView.loadUrl(url);
+        webView.loadUrl("file:///android_asset/index.html");
 
+        webView.addJavascriptInterface(new JavaScriptInterface(this), "AndroidFunction");
 
         //Share Button
-        button.setOnClickListener(v -> {
+        /*button.setOnClickListener(v -> {
             String data = String.valueOf(new GetData().execute(url));
 
             Intent sendIntent = new Intent();
@@ -52,61 +55,27 @@ public class MainActivity extends AppCompatActivity {
             startActivity(shareIntent);
 
             Toast.makeText(getApplicationContext(),"Sharing...", Toast.LENGTH_SHORT).show();
-        });
-    }
-    public class GetData extends AsyncTask<String , Void ,String> {
-        String server_response;
-
-        @Override
-        protected String doInBackground(String... strings) {
-            URL url;
-            HttpURLConnection urlConnection = null;
-
-            try {
-                url = new URL(strings[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-
-                int responseCode = urlConnection.getResponseCode();
-
-                if(responseCode == HttpURLConnection.HTTP_OK){
-                    server_response = readStream(urlConnection.getInputStream());
-                    Log.v("CatalogClient", server_response);
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.e("Response", "" + server_response);
-        }
+        });*/
     }
 
-// Converting InputStream to String
-    private String readStream(InputStream in) {
-        BufferedReader reader = null;
-        StringBuffer response = new StringBuffer();
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    public class JavaScriptInterface {
+        Context mainContext;
+
+        JavaScriptInterface(Context context){
+            mainContext = context;
         }
-        return response.toString();
+
+        @JavascriptInterface
+        public void shareData(String data){
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, data);
+            sendIntent.setType("text/plain");
+
+            Intent shareIntent = Intent.createChooser(sendIntent, null);
+            startActivity(shareIntent);
+
+            Toast.makeText(getApplicationContext(),"Sharing...", Toast.LENGTH_SHORT).show();
+        }
     }
 }
