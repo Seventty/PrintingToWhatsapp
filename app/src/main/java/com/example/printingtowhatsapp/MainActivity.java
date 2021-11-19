@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,6 +25,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
@@ -49,8 +53,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-    int pageHeight = 1120;
-    int pageWidth = 792;
+    int pageHeight = 500;
+    int pageWidth = 300;
 
     Bitmap bmp, scaledbmp;
 
@@ -84,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void shareData(String data){
             bmp = BitmapFactory.decodeResource(getResources(), R.drawable.marlogo);
-            scaledbmp = Bitmap.createScaledBitmap(bmp, 700, 600, false);
+            scaledbmp = Bitmap.createScaledBitmap(bmp, 700, 500, false);
 
-            //generatePDF(data);
+            generatePDF(data);
 
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("application/pdf");
@@ -101,30 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Error: No he podido abrir tu archivo de ticket.", Toast.LENGTH_SHORT).show();
             }
 
-
-            /*File pdfFile = new File(Environment.getExternalStorageDirectory() + "/Dir/ticket.pdf");
-            Uri path = Uri.fromFile(pdfFile);
-
-            // Setting the intent for pdf reader
-            Intent pdfIntent = new Intent(Intent.ACTION_VIEW);
-            pdfIntent.setDataAndType(path, "application/pdf");
-
-            try {
-                startActivity(pdfIntent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(getApplicationContext(), "Can't read pdf file", Toast.LENGTH_SHORT).show();
-            }*/
-
-
-            /*Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, file.toString());
-            sendIntent.setType("image/png");
-
-            Intent shareIntent = Intent.createChooser(sendIntent, "Ticket");
-            startActivity(shareIntent);
-
-            Toast.makeText(getApplicationContext(),"Sharing...", Toast.LENGTH_SHORT).show();*/
         }
     }
 
@@ -140,37 +120,43 @@ public class MainActivity extends AppCompatActivity {
 
         //Image banner
         Canvas canvas = myPage.getCanvas();
-        canvas.drawBitmap(scaledbmp, 56, 40, paint);
+        canvas.drawBitmap(scaledbmp, 1, 1, paint);
 
-        //Title text settings
+        /*//Title text settings
         title.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        title.setTextSize(25);
+        title.setTextSize(5);
         title.setColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark));
-        canvas.drawText("MAR PRINTING SYSTEM", 229, 100, title);
+        canvas.drawText("MAR PRINTING SYSTEM", 55, 55, title);*/
 
         //Subtitle text settings
         title.setTextSize(20);
         title.setColor(ContextCompat.getColor(this, android.R.color.black));
-        canvas.drawText("Ticket de impresion", 229, 70, title);
+        canvas.drawText("Ticket de impresion", 58, 65, title);
 
         //Body text setting
         title.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
         title.setColor(ContextCompat.getColor(this, R.color.black));
-        title.setTextSize(15);
+        title.setTextSize(5*2);
         title.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(text, 396, 560, title);
+        canvas.drawText(text, 160, 90, title);
 
         //Writing finished
         pdfDocument.finishPage(myPage);
 
         //File creation
         File file = new File(Environment.getExternalStorageDirectory(), "ticket.pdf");
+
+        /*ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
+        File directory = contextWrapper.getDir("MAR_tickets", Context.MODE_PRIVATE);
+        File file = new File(directory, "ticket" + ".pdf");*/
+
         try {
             //End processor
             pdfDocument.writeTo(new FileOutputStream(file));
             Toast.makeText(MainActivity.this, "PDF generado con exito.", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(MainActivity.this, "No he podido imprimir el ticket.", Toast.LENGTH_SHORT).show();
         }
         //Close pdf thread
         pdfDocument.close();
