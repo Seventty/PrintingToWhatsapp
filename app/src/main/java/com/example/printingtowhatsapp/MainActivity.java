@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void shareData(String data){
             bmp = BitmapFactory.decodeResource(getResources(), R.drawable.marlogo);
-            scaledbmp = Bitmap.createScaledBitmap(bmp, 700, 500, false);
+            scaledbmp = Bitmap.createScaledBitmap(bmp, 600, 400, false);
 
             generatePDF(data);
 
